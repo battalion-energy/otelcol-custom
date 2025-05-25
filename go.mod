@@ -1,4 +1,4 @@
-module github.com/your-org/otelcol-custom
+module github.com/battalion/otelcol
 
 go 1.21
 

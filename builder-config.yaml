@@ -1,5 +1,5 @@
 dist:
-  name: otelcol-custom
+  name: otelcol
   description: Custom OpenTelemetry Collector
   output_path: ./dist
 

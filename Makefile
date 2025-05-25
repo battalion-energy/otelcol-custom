@@ -1,6 +1,6 @@
 .PHONY: build clean generate
 
-BINARY_NAME=otelcol-custom
+BINARY_NAME=otelcol
 BUILD_DIR=dist
 
 build:
