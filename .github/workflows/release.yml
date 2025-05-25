@@ -43,7 +43,7 @@ jobs:
 
       - name: Generate collector code
         run: |
-          go run go.opentelemetry.io/collector/cmd/builder@latest --config builder-config.yaml --output-path dist
+          go run go.opentelemetry.io/collector/cmd/builder@latest --config builder-config.yaml
 
       - name: Build binary
         env:
