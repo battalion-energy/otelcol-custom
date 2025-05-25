@@ -1,0 +1,121 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            suffix: linux-amd64
+          - goos: linux
+            goarch: arm64
+            suffix: linux-arm64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Generate collector code
+        run: |
+          go run go.opentelemetry.io/collector/cmd/builder@latest --config builder-config.yaml --output-path dist
+
+      - name: Build binary
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
+        run: |
+          cd dist
+          go build -ldflags="-s -w" -o ../otelcol-custom-${{ matrix.suffix }} .
+
+      - name: Create tarball
+        run: |
+          tar -czf otelcol-custom-${{ matrix.suffix }}.tar.gz otelcol-custom-${{ matrix.suffix }}
+          sha256sum otelcol-custom-${{ matrix.suffix }}.tar.gz > otelcol-custom-${{ matrix.suffix }}.tar.gz.sha256
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: otelcol-custom-${{ matrix.suffix }}
+          path: |
+            otelcol-custom-${{ matrix.suffix }}.tar.gz
+            otelcol-custom-${{ matrix.suffix }}.tar.gz.sha256
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Prepare release assets
+        run: |
+          mkdir -p release-assets
+          find artifacts -name "*.tar.gz*" -exec cp {} release-assets/ \;
+          ls -la release-assets/
+
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ steps.version.outputs.version }}
+          body: |
+            ## Custom OpenTelemetry Collector ${{ steps.version.outputs.version }}
+            
+            ### Downloads
+            
+            #### Linux AMD64
+            - [otelcol-custom-linux-amd64.tar.gz](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom-linux-amd64.tar.gz)
+            - [SHA256](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom-linux-amd64.tar.gz.sha256)
+            
+            #### Linux ARM64
+            - [otelcol-custom-linux-arm64.tar.gz](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom-linux-arm64.tar.gz)
+            - [SHA256](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom-linux-arm64.tar.gz.sha256)
+            
+            ### Installation
+            
+            1. Download the appropriate binary for your architecture
+            2. Extract: `tar -xzf otelcol-custom-<arch>.tar.gz`
+            3. Make executable: `chmod +x otelcol-custom-<arch>`
+            4. Run: `./otelcol-custom-<arch> --config=config.yaml`
+          files: release-assets/*
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
