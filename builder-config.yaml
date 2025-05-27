@@ -4,15 +4,24 @@ dist:
   output_path: ./dist
 
 exporters:
-  - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.126.0
-  - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.126.0
+  - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.127.0
+  - gomod: go.opentelemetry.io/collector/exporter/otlphttpexporter v0.127.0
 
 processors:
-  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.126.0
+  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.127.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/filterprocessor v0.127.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/transformprocessor v0.127.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/metricstransformprocessor v0.127.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/resourcedetectionprocessor v0.127.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/attributesprocessor v0.127.0
 
 receivers:
-  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.126.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/journaldreceiver v0.127.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/hostmetricsreceiver v0.127.0
+
+connectors:
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/connector/routingconnector v0.127.0
 
 providers:
-  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.18.0
-  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.18.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.19.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.19.0
