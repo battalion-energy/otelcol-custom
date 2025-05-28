@@ -100,19 +100,7 @@ jobs:
         with:
           name: Release ${{ steps.version.outputs.version }}
           body: |
-            ## Custom OpenTelemetry Collector ${{ steps.version.outputs.version }}
-            
-            ### Downloads
-            
-            #### Linux AMD64
-            - [otelcol-custom_${{ steps.version.outputs.version }}_amd64.deb](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom_${{ steps.version.outputs.version }}_amd64.deb)
-            - [SHA256](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom_${{ steps.version.outputs.version }}_amd64.deb.sha256)
-            
-            #### Linux ARM64
-            - [otelcol-custom_${{ steps.version.outputs.version }}_arm64.deb](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom_${{ steps.version.outputs.version }}_arm64.deb)
-            - [SHA256](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom_${{ steps.version.outputs.version }}_arm64.deb.sha256)
-            
-            ### Installation
+            ## Custom OpenTelemetry Collector ${{ steps.version.outputs.version }}                                  
             
             1. Download the appropriate .deb package for your architecture
             2. Install: `sudo dpkg -i otelcol-custom_${{ steps.version.outputs.version }}_<arch>.deb`
