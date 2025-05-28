@@ -50,11 +50,11 @@ jobs:
           CGO_ENABLED: 0
         run: |
           cd dist
-          go build -ldflags="-s -w" -o ../otelcol-custom-${{ matrix.suffix }} .
+          go build -ldflags="-s -w" -o ../otelcol-custom .
 
       - name: Create Debian package
         run: |
-          ./build-deb.sh otelcol-custom-${{ matrix.suffix }} ${{ matrix.goarch }}
+          ./build-deb.sh otelcol-custom ${{ matrix.goarch }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
