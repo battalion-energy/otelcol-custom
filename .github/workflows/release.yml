@@ -54,15 +54,21 @@ jobs:
 
       - name: Create Debian package
         run: |
-          ./build-deb.sh otelcol-custom ${{ matrix.goarch }}
+          if [[ "${{ github.ref }}" =~ ^refs/tags/v ]]; then
+            VERSION="${{ github.ref_name }}"
+            VERSION="${VERSION#v}"  # Remove 'v' prefix
+            ./build-deb.sh otelcol-custom ${{ matrix.goarch }} "${VERSION}"
+          else
+            ./build-deb.sh otelcol-custom ${{ matrix.goarch }}
+          fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: otelcol-custom-${{ matrix.suffix }}
           path: |
-            otelcol-custom_1.0.0_${{ matrix.goarch }}.deb
-            otelcol-custom_1.0.0_${{ matrix.goarch }}.deb.sha256
+            otelcol-custom_*_${{ matrix.goarch }}.deb
+            otelcol-custom_*_${{ matrix.goarch }}.deb.sha256
 
   release:
     name: Create Release
@@ -99,17 +105,17 @@ jobs:
             ### Downloads
             
             #### Linux AMD64
-            - [otelcol-custom_1.0.0_amd64.deb](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom_1.0.0_amd64.deb)
-            - [SHA256](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom_1.0.0_amd64.deb.sha256)
+            - [otelcol-custom_${{ steps.version.outputs.version }}_amd64.deb](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom_${{ steps.version.outputs.version }}_amd64.deb)
+            - [SHA256](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom_${{ steps.version.outputs.version }}_amd64.deb.sha256)
             
             #### Linux ARM64
-            - [otelcol-custom_1.0.0_arm64.deb](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom_1.0.0_arm64.deb)
-            - [SHA256](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom_1.0.0_arm64.deb.sha256)
+            - [otelcol-custom_${{ steps.version.outputs.version }}_arm64.deb](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom_${{ steps.version.outputs.version }}_arm64.deb)
+            - [SHA256](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom_${{ steps.version.outputs.version }}_arm64.deb.sha256)
             
             ### Installation
             
             1. Download the appropriate .deb package for your architecture
-            2. Install: `sudo dpkg -i otelcol-custom_1.0.0_<arch>.deb`
+            2. Install: `sudo dpkg -i otelcol-custom_${{ steps.version.outputs.version }}_<arch>.deb`
             3. The service will be automatically enabled and started
             4. Check status: `sudo systemctl status otelcol-custom`
           files: release-assets/*

@@ -2,18 +2,20 @@
 set -e
 
 # Script to build Debian package for otelcol-custom
-# Usage: ./build-deb.sh <binary-name> <architecture>
-# Example: ./build-deb.sh otelcol-custom-linux-amd64 amd64
+# Usage: ./build-deb.sh <binary-name> <architecture> [version]
+# Example: ./build-deb.sh otelcol-custom amd64
+# Example: ./build-deb.sh otelcol-custom amd64 1.2.3
 
-if [ $# -ne 2 ]; then
-    echo "Usage: $0 <binary-name> <architecture>"
-    echo "Example: $0 otelcol-custom-linux-amd64 amd64"
+if [ $# -lt 2 ] || [ $# -gt 3 ]; then
+    echo "Usage: $0 <binary-name> <architecture> [version]"
+    echo "Example: $0 otelcol-custom amd64"
+    echo "Example: $0 otelcol-custom amd64 1.2.3"
     exit 1
 fi
 
 BINARY_NAME="$1"
 ARCH="$2"
-VERSION="1.0.0"
+VERSION="${3:-1.0.0-dev}"
 
 # Create package directory structure
 PKG_DIR="otelcol-custom_${VERSION}_${ARCH}"
