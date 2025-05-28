@@ -55,7 +55,7 @@ receivers:
       process:
         mute_process_exe_error: true
         include:
-          names: ["batt-edge", "tailscaled", "otelcol-contrib"]
+          names: ["batt-edge", "tailscaled", "otelcol-custom"]
           match_type: strict
         metrics:
           process.cpu.utilization:
