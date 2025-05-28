@@ -34,15 +34,10 @@ jobs:
         with:
           go-version: '1.23'
 
-      - name: Cache Go modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+      - name: Install Debian packaging tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dpkg-dev
 
       - name: Generate collector code
         run: |
@@ -55,20 +50,25 @@ jobs:
           CGO_ENABLED: 0
         run: |
           cd dist
-          go build -ldflags="-s -w" -o ../otelcol-custom-${{ matrix.suffix }} .
+          go build -ldflags="-s -w" -o ../otelcol-custom .
 
-      - name: Create tarball
+      - name: Create Debian package
         run: |
-          tar -czf otelcol-custom-${{ matrix.suffix }}.tar.gz otelcol-custom-${{ matrix.suffix }}
-          sha256sum otelcol-custom-${{ matrix.suffix }}.tar.gz > otelcol-custom-${{ matrix.suffix }}.tar.gz.sha256
+          if [[ "${{ github.ref }}" =~ ^refs/tags/v ]]; then
+            VERSION="${{ github.ref_name }}"
+            VERSION="${VERSION#v}"  # Remove 'v' prefix
+            ./build-deb.sh otelcol-custom ${{ matrix.goarch }} "${VERSION}"
+          else
+            ./build-deb.sh otelcol-custom ${{ matrix.goarch }}
+          fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: otelcol-custom-${{ matrix.suffix }}
           path: |
-            otelcol-custom-${{ matrix.suffix }}.tar.gz
-            otelcol-custom-${{ matrix.suffix }}.tar.gz.sha256
+            otelcol-custom_*_${{ matrix.goarch }}.deb
+            otelcol-custom_*_${{ matrix.goarch }}.deb.sha256
 
   release:
     name: Create Release
@@ -88,7 +88,7 @@ jobs:
       - name: Prepare release assets
         run: |
           mkdir -p release-assets
-          find artifacts -name "*.tar.gz*" -exec cp {} release-assets/ \;
+          find artifacts -name "*.deb*" -exec cp {} release-assets/ \;
           ls -la release-assets/
 
       - name: Extract version from tag
@@ -105,19 +105,19 @@ jobs:
             ### Downloads
             
             #### Linux AMD64
-            - [otelcol-custom-linux-amd64.tar.gz](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom-linux-amd64.tar.gz)
-            - [SHA256](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom-linux-amd64.tar.gz.sha256)
+            - [otelcol-custom_${{ steps.version.outputs.version }}_amd64.deb](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom_${{ steps.version.outputs.version }}_amd64.deb)
+            - [SHA256](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom_${{ steps.version.outputs.version }}_amd64.deb.sha256)
             
             #### Linux ARM64
-            - [otelcol-custom-linux-arm64.tar.gz](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom-linux-arm64.tar.gz)
-            - [SHA256](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom-linux-arm64.tar.gz.sha256)
+            - [otelcol-custom_${{ steps.version.outputs.version }}_arm64.deb](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom_${{ steps.version.outputs.version }}_arm64.deb)
+            - [SHA256](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/otelcol-custom_${{ steps.version.outputs.version }}_arm64.deb.sha256)
             
             ### Installation
             
-            1. Download the appropriate binary for your architecture
-            2. Extract: `tar -xzf otelcol-custom-<arch>.tar.gz`
-            3. Make executable: `chmod +x otelcol-custom-<arch>`
-            4. Run: `./otelcol-custom-<arch> --config=config.yaml`
+            1. Download the appropriate .deb package for your architecture
+            2. Install: `sudo dpkg -i otelcol-custom_${{ steps.version.outputs.version }}_<arch>.deb`
+            3. The service will be automatically enabled and started
+            4. Check status: `sudo systemctl status otelcol-custom`
           files: release-assets/*
           draft: false
           prerelease: false
