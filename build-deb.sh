@@ -95,9 +95,9 @@ exit 0
 EOF
 chmod +x ${PKG_DIR}/DEBIAN/prerm
 
-# Build the package
+# Build the package with gzip compression for compatibility with older systems
 echo "Building Debian package"
-dpkg-deb --build ${PKG_DIR}
+dpkg-deb --build -Zgzip ${PKG_DIR}
 
 # Create checksum
 echo "Creating checksum"
