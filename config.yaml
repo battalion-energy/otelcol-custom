@@ -1,0 +1,192 @@
+service:
+
+  pipelines:
+    logs/in:
+      receivers: [journald]
+      exporters: [routing]
+
+    logs/other:
+      receivers: [routing]
+      processors: [filter/only_ssh_in_tailscaled, transform/journald, batch/logs]
+      exporters: [otlphttp/dash0/logs]
+
+    logs/batt-edge:
+      receivers: [routing]
+      processors: [transform/edge_remap, batch/logs]
+      exporters: [otlphttp/dash0/logs]
+
+    metrics:
+      receivers: [hostmetrics]
+      processors: [filter/cpu_mode, filter/process_cpu_mode, metricstransform/aggregate_cpu, resourcedetection/system, attributes/add_host_to_metrics, batch/metrics]
+      exporters: [otlphttp/dash0/metrics]
+
+receivers:
+  journald:
+    directory: /var/log/journal
+    units: ["tailscaled", "batt-edge"]
+
+  hostmetrics:
+    collection_interval: 30s
+    scrapers:
+
+      network:
+        include:
+          # modify this field to match your network interfaces
+          interfaces: ${env:NETWORK_INTERFACES}
+          match_type: strict
+        metrics:
+          system.network.connections:
+            enabled: false
+
+      filesystem:
+        include_mount_points:
+          mount_points: ${env:MOUNT_POINTS}
+          match_type: strict
+        include_virtual_filesystems:
+          true
+        metrics:
+          system.filesystem.inodes.usage:
+            enabled: false
+          system.filesystem.usage:
+            enabled: true
+          system.filesystem.utilization:
+            enabled: true
+
+      process:
+        mute_process_exe_error: true
+        include:
+          names: ["batt-edge", "tailscaled", "otelcol-contrib"]
+          match_type: strict
+        metrics:
+          process.cpu.utilization:
+            enabled: true
+          process.cpu.time:
+            enabled: false
+          process.disk.io:
+            enabled: false
+          process.memory.usage:
+            enabled: false
+          process.memory.virtual:
+            enabled: false
+            
+      cpu:
+        metrics:
+          system.cpu.utilization:
+            enabled: true
+          system.cpu.time:
+            enabled: false
+
+connectors:
+  routing:
+    table:
+      - context: log
+        condition: body["_SYSTEMD_UNIT"] == "batt-edge.service"
+        pipelines: [logs/batt-edge]
+      - context: log
+        condition: body["_SYSTEMD_UNIT"] != "batt-edge.service"
+        pipelines: [logs/other]
+      
+processors:
+  filter/only_ssh_in_tailscaled:
+    error_mode: ignore 
+    logs:
+      log_record:
+        - 'IsMatch(log.body["_SYSTEMD_UNIT"], "tailscaled.service") and not(IsMatch(log.body["MESSAGE"], ".*ssh.*"))'
+
+  transform/journald:
+    error_mode: ignore
+    log_statements:
+      - statements:
+        - set(log.attributes["unit"], log.body["_SYSTEMD_UNIT"])
+        - set(log.attributes["message"], log.body["MESSAGE"])
+        - set(log.attributes["host"], log.body["_HOSTNAME"])
+
+        - keep_keys(log.attributes, ["unit", "message", "host"])
+        - keep_keys(log.body, [])
+
+  transform/edge_remap:
+    error_mode: ignore
+    log_statements:
+      - statements:
+        - merge_maps(log.cache, ParseJSON(log.body["MESSAGE"]), "insert")
+        
+        - set(log.attributes["unit"], log.body["_SYSTEMD_UNIT"])
+        - set(log.attributes["host"], log.body["_HOSTNAME"])
+        - set(log.attributes["message"], log.cache["fields"]["message"])
+        - set(log.attributes["level"], log.cache["level"])
+        - set(log.attributes["spans"], log.cache["spans"])
+
+        - set(log.severity_number, 1) where log.cache["level"] == "TRACE"
+        - set(log.severity_number, 5) where log.cache["level"] == "DEBUG"
+        - set(log.severity_number, 9) where log.cache["level"] == "INFO"
+        - set(log.severity_number, 13) where log.cache["level"] == "WARN"
+        - set(log.severity_number, 17) where log.cache["level"] == "ERROR"
+
+        - keep_keys(log.attributes, ["unit", "host", "message", "level", "spans"])
+        - keep_keys(log.body, [])
+      
+  batch/logs:
+   # using default settings, 200ms timeout
+  batch/metrics:
+    timeout: 15m 
+
+  filter/cpu_mode:
+    error_mode: ignore
+    metrics:
+      datapoint: |
+        metric.name == "system.cpu.utilization" and
+        not(
+          attributes["state"] == "user" or 
+          attributes["state"] == "system" or 
+          attributes["state"] == "idle"
+        )
+
+  filter/process_cpu_mode:
+    error_mode: ignore
+    metrics:
+      datapoint: |
+        metric.name == "process.cpu.utilization" and
+        not(
+          attributes["state"] == "user" or 
+          attributes["state"] == "system"
+        )
+
+  metricstransform/aggregate_cpu:
+    transforms:
+      - include: system.cpu.utilization
+        action: update
+        operations:
+          - action: aggregate_labels
+            label_set: ["state"]
+            aggregation_type: mean
+
+  resourcedetection/system:
+    detectors: ["env", "system"]
+    timeout: 2s
+    override: false
+    system:
+      hostname_sources: ["os"]
+
+  attributes/add_host_to_metrics:
+    actions:
+      - action: insert
+        key: host
+        from_attribute: host.name
+
+exporters:
+  otlphttp/dash0/logs:
+    endpoint: https://ingress.us-west-2.aws.dash0.com/
+    headers:
+      Authorization: ${env:DASH0_API_KEY}
+    compression: gzip
+    encoding: json
+
+  otlphttp/dash0/metrics:
+    endpoint: https://ingress.us-west-2.aws.dash0.com/
+    headers:
+      Authorization: ${env:DASH0_API_KEY}
+    compression: gzip
+    encoding: json
+      
+  debug:
+    verbosity: normal
