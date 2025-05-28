@@ -26,7 +26,7 @@ receivers:
     units: ["tailscaled", "batt-edge"]
 
   hostmetrics:
-    collection_interval: 30s
+    collection_interval: ${env:METRICS_SCRAPE_INTERVAL}
     scrapers:
 
       network:
@@ -128,7 +128,7 @@ processors:
   batch/logs:
    # using default settings, 200ms timeout
   batch/metrics:
-    timeout: 15m 
+    timeout: ${env:METRICS_BATCH_INTERVAL}
 
   filter/cpu_mode:
     error_mode: ignore
