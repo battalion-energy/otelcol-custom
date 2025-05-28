@@ -3,6 +3,7 @@ service:
   pipelines:
     logs/in:
       receivers: [journald]
+      processors: [attributes/add_site_name]
       exporters: [routing]
 
     logs/other:
@@ -17,7 +18,7 @@ service:
 
     metrics:
       receivers: [hostmetrics]
-      processors: [filter/cpu_mode, filter/process_cpu_mode, metricstransform/aggregate_cpu, resourcedetection/system, attributes/add_host_to_metrics, batch/metrics]
+      processors: [filter/cpu_mode, filter/process_cpu_mode, metricstransform/aggregate_cpu, attributes/add_site_name, batch/metrics]
       exporters: [otlphttp/dash0/metrics]
 
 receivers:
@@ -99,9 +100,8 @@ processors:
       - statements:
         - set(log.attributes["unit"], log.body["_SYSTEMD_UNIT"])
         - set(log.attributes["message"], log.body["MESSAGE"])
-        - set(log.attributes["host"], log.body["_HOSTNAME"])
 
-        - keep_keys(log.attributes, ["unit", "message", "host"])
+        - keep_keys(log.attributes, ["unit", "message", "site_name"])
         - keep_keys(log.body, [])
 
   transform/edge_remap:
@@ -111,7 +111,6 @@ processors:
         - merge_maps(log.cache, ParseJSON(log.body["MESSAGE"]), "insert")
         
         - set(log.attributes["unit"], log.body["_SYSTEMD_UNIT"])
-        - set(log.attributes["host"], log.body["_HOSTNAME"])
         - set(log.attributes["message"], log.cache["fields"]["message"])
         - set(log.attributes["level"], log.cache["level"])
         - set(log.attributes["spans"], log.cache["spans"])
@@ -122,7 +121,7 @@ processors:
         - set(log.severity_number, 13) where log.cache["level"] == "WARN"
         - set(log.severity_number, 17) where log.cache["level"] == "ERROR"
 
-        - keep_keys(log.attributes, ["unit", "host", "message", "level", "spans"])
+        - keep_keys(log.attributes, ["unit", "site_name", "message", "level", "spans"])
         - keep_keys(log.body, [])
       
   batch/logs:
@@ -160,18 +159,12 @@ processors:
             label_set: ["state"]
             aggregation_type: mean
 
-  resourcedetection/system:
-    detectors: ["env", "system"]
-    timeout: 2s
-    override: false
-    system:
-      hostname_sources: ["os"]
 
-  attributes/add_host_to_metrics:
+  attributes/add_site_name:
     actions:
       - action: insert
-        key: host
-        from_attribute: host.name
+        key: site_name
+        value: ${env:SITE_NAME}
 
 exporters:
   otlphttp/dash0/logs:
