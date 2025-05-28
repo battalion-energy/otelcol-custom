@@ -75,7 +75,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -100,12 +100,13 @@ jobs:
         with:
           name: Release ${{ steps.version.outputs.version }}
           body: |
-            ## Custom OpenTelemetry Collector ${{ steps.version.outputs.version }}                                  
-            
             1. Download the appropriate .deb package for your architecture
             2. Install: `sudo dpkg -i otelcol-custom_${{ steps.version.outputs.version }}_<arch>.deb`
-            3. The service will be automatically enabled and started
-            4. Check status: `sudo systemctl status otelcol-custom`
+            3. The service will be automatically enabled and started but will fail due to missing ENV vars
+            4. Define missing ENV vars including API key in /etc/otelcol-custom/otel-custom.conf
+            5. Restart: `sudo systemctl restart otelcol-custom`
+            6. Check status: `sudo systemctl status otelcol-custom`
+
           files: release-assets/*
           draft: false
           prerelease: false
