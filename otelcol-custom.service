@@ -1,0 +1,15 @@
+[Unit]
+Description=OpenTelemetry Collector Contrib
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/otelcol-custom/otelcol-custom.conf
+ExecStartPre=/usr/bin/otelcol-exec-start-pre.sh
+ExecStart=/usr/bin/otelcol-custom $OTELCOL_OPTIONS
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=mixed
+Restart=on-failure
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
