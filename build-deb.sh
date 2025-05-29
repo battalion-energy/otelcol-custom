@@ -54,6 +54,12 @@ Description: Custom OpenTelemetry Collector
  A custom build of the OpenTelemetry Collector with specific components.
 EOF
 
+# Create conffiles to preserve configuration files during upgrades
+echo "Creating conffiles"
+cat > ${PKG_DIR}/DEBIAN/conffiles << 'EOF'
+/etc/otelcol-custom/otelcol-custom.conf
+EOF
+
 # Create postinst script to enable and start service
 echo "Creating postinst script"
 cat > ${PKG_DIR}/DEBIAN/postinst << 'EOF'
