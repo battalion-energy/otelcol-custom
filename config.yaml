@@ -23,7 +23,8 @@ service:
     
     metrics/batt-edge:
       receivers: [prometheus]
-      exporters: [debug, otlphttp/dash0/metrics]
+      processors: [batch/logs]
+      exporters: [otlphttp/dash0/metrics]
 
 
 receivers:
