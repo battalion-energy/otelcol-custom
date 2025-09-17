@@ -19,7 +19,7 @@ service:
     metrics:
       receivers: [hostmetrics]
       processors: [filter/cpu_mode, filter/process_cpu_mode, metricstransform/aggregate_cpu, attributes/add_site_name, batch/metrics]
-      exporters: [otlphttp/dash0/metrics]
+      exporters: [otlphttp/dash0/metrics, prometheus/self]
 
 receivers:
   journald:
@@ -180,6 +180,11 @@ exporters:
       Authorization: ${env:DASH0_API_KEY}
     compression: gzip
     encoding: json
+
+  prometheus/self:
+    endpoint: ${env:PROMETHEUS_EXPORTER_ENDPOINT}
+    const_labels:
+      site_name: ${env:SITE_NAME}
       
   debug:
     verbosity: normal
