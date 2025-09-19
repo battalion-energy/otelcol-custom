@@ -1,0 +1,24 @@
+[0;1;32m●[0m otelcol-contrib.service - OpenTelemetry Collector Contrib
+     Loaded: loaded (]8;;file://fedora/usr/lib/systemd/system/otelcol-contrib.service\/usr/lib/systemd/system/otelcol-contrib.service]8;;\; [0;1;32menabled[0m; preset: [0;1;38:5:185mdisabled[0m)
+    Drop-In: /usr/lib/systemd/system/service.d
+             └─]8;;file://fedora/usr/lib/systemd/system/service.d/10-timeout-abort.conf\10-timeout-abort.conf]8;;\
+     Active: [0;1;32mactive (running)[0m since Fri 2025-09-19 11:29:12 PDT; 51s ago
+ Invocation: 1f52d50dfcdb4b2892b139b6ffff6b2f
+   Main PID: 18793 (otelcol-contrib)
+      Tasks: 17[0;38;5;245m (limit: 37821)[0m
+     Memory: 33.1M (peak: 33.6M)
+        CPU: 266ms
+     CGroup: /system.slice/otelcol-contrib.service
+             ├─[0;38;5;245m18793 /usr/bin/otelcol-contrib --config=/etc/otelcol-contrib/config.yaml[0m
+             └─[0;38;5;245m18813 /usr/bin/dbus-daemon --syslog --fork --print-pid 4 --print-address 6 --session[0m
+
+Sep 19 11:29:54 fedora otelcol-contrib[18793]: Descriptor:
+Sep 19 11:29:54 fedora otelcol-contrib[18793]:      -> Name: scrape_samples_post_metric_relabeling
+Sep 19 11:29:54 fedora otelcol-contrib[18793]:      -> Description: The number of samples remaining after metric relabeling was applied
+Sep 19 11:29:54 fedora otelcol-contrib[18793]:      -> Unit:
+Sep 19 11:29:54 fedora otelcol-contrib[18793]:      -> DataType: Gauge
+Sep 19 11:29:54 fedora otelcol-contrib[18793]: NumberDataPoints #0
+Sep 19 11:29:54 fedora otelcol-contrib[18793]: StartTimestamp: 1970-01-01 00:00:00 +0000 UTC
+Sep 19 11:29:54 fedora otelcol-contrib[18793]: Timestamp: 2025-09-19 18:29:54.574 +0000 UTC
+Sep 19 11:29:54 fedora otelcol-contrib[18793]: Value: 41.000000
+Sep 19 11:29:54 fedora otelcol-contrib[18793]:         {"resource": {"service.instance.id": "6e4e521c-f3f3-403f-93a7-ba9babbcf07c", "service.name": "otelcol-contrib", "service.version": "0.135.0"}, "otelcol.component.id": "debug", "otelcol.component.kind": "exporter", "otelcol.signal": "metrics"}

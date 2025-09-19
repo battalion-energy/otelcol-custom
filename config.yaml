@@ -183,8 +183,6 @@ exporters:
 
   prometheus/self:
     endpoint: ${env:PROMETHEUS_EXPORTER_ENDPOINT}
-    const_labels:
-      site_name: ${env:SITE_NAME}
       
   debug:
     verbosity: normal
