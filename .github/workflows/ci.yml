@@ -53,12 +53,12 @@ jobs:
 
       - name: Set env vars
         run: |
-          METRICS_SCRAPE_INTERVAL=60s \
-          NETWORK_INTERFACES='["eth0"]' \
-          MOUNT_POINTS='["/"]' \
-          METRICS_BATCH_INTERVAL=200ms \
-          SITE_NAME='example-site' \
-          DASH0_API_KEY='placeholder' \
+          export METRICS_SCRAPE_INTERVAL=60s \
+          export NETWORK_INTERFACES='["eth0"]' \
+          export MOUNT_POINTS='["/"]' \
+          export METRICS_BATCH_INTERVAL=200ms \
+          export SITE_NAME='example-site' \
+          export DASH0_API_KEY='placeholder' \
 
       - name: Validate configuration
         run: |
