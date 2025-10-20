@@ -16,10 +16,16 @@ service:
       processors: [transform/edge_remap, batch/logs]
       exporters: [otlphttp/dash0/logs]
 
-    metrics:
+    metrics/system:
       receivers: [hostmetrics]
       processors: [filter/cpu_mode, filter/process_cpu_mode, metricstransform/aggregate_cpu, attributes/add_site_name, batch/metrics]
       exporters: [otlphttp/dash0/metrics]
+    
+    metrics/batt-edge:
+      receivers: [prometheus]
+      processors: [batch/metrics]
+      exporters: [otlphttp/dash0/metrics]
+
 
 receivers:
   journald:
@@ -76,6 +82,15 @@ receivers:
             enabled: true
           system.cpu.time:
             enabled: false
+
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'edge-metrics'
+          scrape_interval: ${env:METRICS_SCRAPE_INTERVAL}
+          static_configs:
+            - targets: ['127.0.0.1:9000']
+          metrics_path: '/metrics'
 
 connectors:
   routing:
