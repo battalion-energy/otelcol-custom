@@ -51,7 +51,7 @@ jobs:
           cd dist
           go build -ldflags="-s -w" -o ../otelcol-custom .
 
-      - name: Validate otelcol-custom binary
+      - name: Set env vars
         run: |
           METRICS_SCRAPE_INTERVAL=60s \
           NETWORK_INTERFACES='["eth0"]' \
@@ -60,6 +60,8 @@ jobs:
           SITE_NAME='example-site' \
           DASH0_API_KEY='placeholder' \
 
+      - name: Validate configuration
+        run: |
           ./dist/otelcol --config config.yaml validate
 
       - name: Create Debian package
