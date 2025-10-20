@@ -182,7 +182,7 @@ exporters:
     encoding: json
 
   prometheus:
-    endpoint: "0.0.0.0:8889"
+    endpoint: ${env:PROMETHEUS_EXPORTER_ENDPOINT}
 
   debug:
     verbosity: normal
