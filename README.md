@@ -50,6 +50,25 @@ Service configuration options are available in `/etc/otelcol-custom/otelcol-cust
    cd dist
    go build -ldflags="-s -w" -o ../otelcol-custom .
    ```
+### Dependency updates
+OpenTelemetry Collector tends to be on a fast release cycle, so keeping the dependencies up to date is a good idea.
+1) Make sure to grab the latest versions of the dependencies:
+```bash
+   go get \
+    go.opentelemetry.io/collector/cmd/builder@[latest] \
+    go.opentelemetry.io/collector/component@[latest] \
+    go.opentelemetry.io/collector/confmap@[latest] \
+    go.opentelemetry.io/collector/otelcol@[latest]
+
+  go mod tidy # This is used to remove any indirect deps that aren't needed anymore
+```
+2) Update the `builder-config.yaml` to the versions added above.
+   Small example:
+   ```go
+   receivers:
+      - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/journaldreceiver [latest version] // <- update the version
+   ```
+3) Make sure everything works with `make build` and `./dist/otelcol --config config.yaml`
 
 ### Creating Debian Packages
 
