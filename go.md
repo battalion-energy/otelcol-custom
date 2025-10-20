@@ -42,7 +42,7 @@ This project requires:
    sudo tar -C /usr/local -xzf go1.24.9.linux-amd64.tar.gz
    ```
 
-4. **Add Go to your PATH**
+4. **Add Go to your PATH** *_Should only be needed once_*
 
    Add the following to your `~/.bashrc`, `~/.zshrc`, or `~/.profile`:
    ```bash
@@ -61,19 +61,6 @@ This project requires:
    go version
    # Should output: go version go1.24.9 linux/amd64
    ```
-
-### macOS Installation
-
-Using Homebrew:
-```bash
-brew install go@1.24
-```
-
-Or download the `.pkg` installer from [go.dev/dl](https://go.dev/dl/)
-
-### Windows Installation
-
-Download the `.msi` installer from [go.dev/dl](https://go.dev/dl/) and follow the installation wizard.
 
 ## Updating Go
 
@@ -130,21 +117,6 @@ go1.24.9 download
    ```bash
    go mod verify
    ```
-
-### Environment Variables
-
-Set these environment variables for optimal development:
-
-```bash
-# Enable Go modules (default in Go 1.16+)
-export GO111MODULE=on
-
-# Set GOPROXY for faster downloads
-export GOPROXY=https://proxy.golang.org,direct
-
-# Disable CGO if not needed (for static binaries)
-export CGO_ENABLED=0
-```
 
 ## Building the Collector
 
@@ -289,75 +261,7 @@ go test -coverprofile=coverage.out ./...
 go tool cover -html=coverage.out
 ```
 
-### 5. Linting and Formatting
-
-```bash
-# Format code
-go fmt ./...
-
-# Run go vet
-go vet ./...
-
-# Install and run golangci-lint (recommended)
-go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-golangci-lint run
-```
-
 ## Troubleshooting
-
-### Common Issues
-
-#### 1. "go: module not found" or "package not found"
-
-**Solution:**
-```bash
-go mod download
-go mod verify
-go mod tidy
-```
-
-#### 2. "build constraints exclude all Go files"
-
-This usually means you're building for the wrong platform or architecture.
-
-**Solution:**
-```bash
-# Check current platform
-go env GOOS GOARCH
-
-# Build for current platform explicitly
-GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build
-```
-
-#### 3. "collector builder fails"
-
-**Solution:**
-```bash
-# Clean and regenerate
-rm -rf dist/
-go run go.opentelemetry.io/collector/cmd/builder@latest --config builder-config.yaml
-```
-
-#### 4. "out of memory" during build
-
-**Solution:**
-```bash
-# Limit parallel compilation
-go build -p 1 .
-
-# Or increase system resources
-```
-
-#### 5. Version mismatch errors
-
-**Solution:**
-```bash
-# Clean module cache
-go clean -modcache
-
-# Re-download dependencies
-go mod download
-```
 
 ### Debugging Build Issues
 
