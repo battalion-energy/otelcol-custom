@@ -59,8 +59,7 @@ jobs:
          export METRICS_BATCH_INTERVAL=200ms
          export SITE_NAME='example-site'
          export DASH0_API_KEY='placeholder'
-
-          ./dist/otelcol --config config.yaml validate
+         ./dist/otelcol --config config.yaml validate
 
       - name: Create Debian package
         run: |
