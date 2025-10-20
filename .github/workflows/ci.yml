@@ -78,6 +78,7 @@ jobs:
           path: |
             otelcol-custom_*_${{ matrix.goarch }}.deb
             otelcol-custom_*_${{ matrix.goarch }}.deb.sha256
+            cp ./dist/otelcol otelcol-custom-${{ matrix.goarch }}-binary
 
   release:
     name: Release
