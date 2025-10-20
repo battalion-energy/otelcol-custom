@@ -19,7 +19,7 @@ service:
     metrics:
       receivers: [hostmetrics]
       processors: [filter/cpu_mode, filter/process_cpu_mode, metricstransform/aggregate_cpu, attributes/add_site_name, batch/metrics]
-      exporters: [otlphttp/dash0/metrics, prometheus/self]
+      exporters: [otlphttp/dash0/metrics, prometheus]
 
 receivers:
   journald:
@@ -181,8 +181,8 @@ exporters:
     compression: gzip
     encoding: json
 
-  prometheus/self:
-    endpoint: ${env:PROMETHEUS_EXPORTER_ENDPOINT}
-      
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+
   debug:
     verbosity: normal
