@@ -58,7 +58,7 @@ jobs:
           export MOUNT_POINTS='["/"]' \
           export METRICS_BATCH_INTERVAL=200ms \
           export SITE_NAME='example-site' \
-          export DASH0_API_KEY='placeholder' \
+          export DASH0_API_KEY='placeholder'
 
       - name: Validate configuration
         run: |
