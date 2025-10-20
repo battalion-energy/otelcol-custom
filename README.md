@@ -51,7 +51,7 @@ Service configuration options are available in `/etc/otelcol-custom/otelcol-cust
    go build -ldflags="-s -w" -o ../otelcol-custom .
    ```
 ### Dependency updates
-OpenTelemetry Collector tends to be on a fast release cycle, so keeping the dependencies up to date is a good idea.
+OpenTelemetry Collector tends to be on a fast release cycle, so here's the process.
 1) Make sure to grab the latest versions of the dependencies:
 ```bash
    go get \
