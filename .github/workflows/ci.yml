@@ -11,6 +11,9 @@ permissions:
   contents: write
 
 jobs:
+  test: 
+
+
   build:
     name: Build and Package
     runs-on: ubuntu-latest
@@ -51,15 +54,16 @@ jobs:
           cd dist
           go build -ldflags="-s -w" -o ../otelcol-custom .
 
-      - name: Validate config.yaml for otelcol
+      - name: Validate config.yaml for otelcol-custom
+        # if: matrix.goarch == 'amd64'
         run: |
-         export METRICS_SCRAPE_INTERVAL=60s
-         export NETWORK_INTERFACES='["eth0"]'
-         export MOUNT_POINTS='["/"]'
-         export METRICS_BATCH_INTERVAL=200ms
-         export SITE_NAME='example-site'
-         export DASH0_API_KEY='placeholder'
-         ./dist/otelcol --config config.yaml validate
+          export METRICS_SCRAPE_INTERVAL=60s
+          export NETWORK_INTERFACES='["eth0"]'
+          export MOUNT_POINTS='["/"]'
+          export METRICS_BATCH_INTERVAL=200ms
+          export SITE_NAME='example-site'
+          export DASH0_API_KEY='placeholder'
+          ./otelcol-custom --config config.yaml validate
 
       - name: Create Debian package
         run: |
@@ -78,7 +82,6 @@ jobs:
           path: |
             otelcol-custom_*_${{ matrix.goarch }}.deb
             otelcol-custom_*_${{ matrix.goarch }}.deb.sha256
-            cp ./dist/otelcol otelcol-custom-${{ matrix.goarch }}-binary
 
   release:
     name: Release
