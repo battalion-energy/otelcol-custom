@@ -56,6 +56,7 @@ jobs:
 
       - name: Validate config.yaml for otelcol-custom
         # if: matrix.goarch == 'amd64'
+        
         run: |
           export METRICS_SCRAPE_INTERVAL=60s
           export NETWORK_INTERFACES='["eth0"]'
