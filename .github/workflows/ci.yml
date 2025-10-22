@@ -52,6 +52,7 @@ jobs:
           go build -ldflags="-s -w" -o ../otelcol-custom .
 
       - name: Validate config.yaml for otelcol-custom
+        # Only run validation for amd64 builds, since verifying it against ARM binaries wouldn't work on GH's x86 runners.
         if: matrix.goarch == 'amd64'
         run: |
           export METRICS_SCRAPE_INTERVAL=60s
