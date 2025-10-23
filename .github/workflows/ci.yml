@@ -61,6 +61,7 @@ jobs:
           export METRICS_BATCH_INTERVAL=200ms
           export SITE_NAME='example-site'
           export DASH0_API_KEY='placeholder'
+          export PROMETHEUS_EXPORTER_ENDPOINT="0.0.0.0:8889"
           ./otelcol-custom --config config.yaml validate
 
       - name: Create Debian package
