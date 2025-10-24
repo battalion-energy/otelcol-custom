@@ -52,16 +52,17 @@ jobs:
           go build -ldflags="-s -w" -o ../otelcol-custom .
 
       - name: Validate config.yaml for otelcol-custom
-        # Only run validation for amd64 builds, since verifying it against ARM binaries wouldn't work on GH's x86 runners.
         if: matrix.goarch == 'amd64'
-        run: |
-          export METRICS_SCRAPE_INTERVAL=60s
-          export NETWORK_INTERFACES='["eth0"]'
-          export MOUNT_POINTS='["/"]'
-          export METRICS_BATCH_INTERVAL=200ms
-          export SITE_NAME='example-site'
-          export DASH0_API_KEY='placeholder'
-          ./otelcol-custom --config config.yaml validate
+        env:
+          METRICS_SCRAPE_INTERVAL: 60s
+          NETWORK_INTERFACES: '["eth0"]'
+          MOUNT_POINTS: '["/"]'
+          METRICS_BATCH_INTERVAL: 200ms
+          SITE_NAME: example-site
+          DASH0_API_KEY: placeholder
+          PROMETHEUS_TARGETS: '["127.0.0.1:9000"]'
+          PROMETHEUS_EXPORTER_ENDPOINT: 0.0.0.0:8889
+        run: ./otelcol-custom --config config.yaml validate
 
       - name: Create Debian package
         run: |

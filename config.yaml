@@ -19,13 +19,12 @@ service:
     metrics/system:
       receivers: [hostmetrics]
       processors: [filter/cpu_mode, filter/process_cpu_mode, metricstransform/aggregate_cpu, attributes/add_site_name, batch/metrics]
-      exporters: [otlphttp/dash0/metrics]
-    
+      exporters: [otlphttp/dash0/metrics, prometheus]
+
     metrics/batt-edge:
       receivers: [prometheus]
       processors: [batch/metrics]
       exporters: [otlphttp/dash0/metrics]
-
 
 receivers:
   journald:
@@ -86,10 +85,10 @@ receivers:
   prometheus:
     config:
       scrape_configs:
-        - job_name: 'edge-metrics'
+        - job_name: batt-edge
           scrape_interval: ${env:METRICS_SCRAPE_INTERVAL}
           static_configs:
-            - targets: ['127.0.0.1:9000']
+            - targets: ${env:PROMETHEUS_TARGETS}
           metrics_path: '/metrics'
 
 connectors:
@@ -195,6 +194,9 @@ exporters:
       Authorization: ${env:DASH0_API_KEY}
     compression: gzip
     encoding: json
-      
+
+  prometheus:
+    endpoint: ${env:PROMETHEUS_EXPORTER_ENDPOINT}
+
   debug:
     verbosity: normal
