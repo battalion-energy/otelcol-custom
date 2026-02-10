@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [v1.3.0] - 2026-2-10
 
 ### Changed
 - Upgraded the project toolchain to Go 1.25 and refreshed component versions to the v0.145.x series.
