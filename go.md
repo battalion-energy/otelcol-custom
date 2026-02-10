@@ -18,8 +18,8 @@ This document provides comprehensive guidance for working with Go in the otelcol
 ## Prerequisites
 
 This project requires:
-- **Go version**: 1.24.0 or higher (as specified in [go.mod](go.mod))
-- **Toolchain**: go1.24.9
+- **Go version**: 1.25.0 or higher (as specified in [go.mod](go.mod))
+- **Toolchain**: go1.25.7
 - **Operating System**: Linux (primary), macOS, or Windows
 
 ## Installing Go
@@ -29,7 +29,7 @@ This project requires:
 1. **Download Go** from the [official Go downloads page](https://go.dev/dl/)
    ```bash
    # Download the latest version (replace with current version)
-   wget https://go.dev/dl/go1.24.9.linux-amd64.tar.gz
+   wget https://go.dev/dl/go1.25.7.linux-amd64.tar.gz
    ```
 
 2. **Remove any existing Go installation**
@@ -39,7 +39,7 @@ This project requires:
 
 3. **Extract the archive to /usr/local**
    ```bash
-   sudo tar -C /usr/local -xzf go1.24.9.linux-amd64.tar.gz
+   sudo tar -C /usr/local -xzf go1.25.7.linux-amd64.tar.gz
    ```
 
 4. **Add Go to your PATH** *_Should only be needed once_*
@@ -59,7 +59,7 @@ This project requires:
 6. **Verify the installation**
    ```bash
    go version
-   # Should output: go version go1.24.9 linux/amd64
+   # Should output: go version go1.25.7 linux/amd64
    ```
 
 ## Updating Go
@@ -80,10 +80,10 @@ This project requires:
 3. **Download and install the new version**
    ```bash
    # Download the latest version
-   wget https://go.dev/dl/go1.24.9.linux-amd64.tar.gz
+   wget https://go.dev/dl/go1.25.7.linux-amd64.tar.gz
 
    # Extract to /usr/local
-   sudo tar -C /usr/local -xzf go1.24.9.linux-amd64.tar.gz
+   sudo tar -C /usr/local -xzf go1.25.7.linux-amd64.tar.gz
    ```
 
 4. **Verify the update**
@@ -94,8 +94,8 @@ This project requires:
 ### Method 2: Using Go's Built-in Update (Go 1.20+)
 
 ```bash
-go install golang.org/dl/go1.24.9@latest
-go1.24.9 download
+go install golang.org/dl/go1.25.7@latest
+go1.25.7 download
 ```
 
 ## Project Setup
@@ -240,7 +240,7 @@ go mod tidy
 Update OpenTelemetry Collector version:
 ```bash
 # Update to specific version
-go get go.opentelemetry.io/collector/otelcol@v0.137.0
+go get go.opentelemetry.io/collector/otelcol@v0.145.0
 go mod tidy
 ```
 
@@ -286,8 +286,8 @@ go build -ldflags="-v" .
 
 The [go.mod](go.mod) file specifies:
 - **Module path**: `github.com/battalion/otelcol`
-- **Go version**: `1.24.0`
-- **Toolchain**: `go1.24.9`
+- **Go version**: `1.25.0`
+- **Toolchain**: `go1.25.7`
 - **Dependencies**: Direct and indirect dependencies
 
 ### Key Dependencies
@@ -331,8 +331,8 @@ go version
 
 # Update Go installation (Linux)
 sudo rm -rf /usr/local/go
-wget https://go.dev/dl/go1.24.9.linux-amd64.tar.gz
-sudo tar -C /usr/local -xzf go1.24.9.linux-amd64.tar.gz
+wget https://go.dev/dl/go1.25.7.linux-amd64.tar.gz
+sudo tar -C /usr/local -xzf go1.25.7.linux-amd64.tar.gz
 ```
 
 ### 2. Use Make Targets
@@ -391,7 +391,7 @@ make build
 
 ## Project-Specific Notes
 
-- This project uses Go 1.24.0+ for latest OpenTelemetry Collector support
+- This project uses Go 1.25.0+ for latest OpenTelemetry Collector support
 - The `dist/` directory is auto-generated and should not be manually edited
 - All custom logic should be in configuration files, not in generated code
 - See [README.md](README.md) for high-level project documentation
