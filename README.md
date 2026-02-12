@@ -40,10 +40,10 @@ Service configuration options are available in `/etc/otelcol-custom/otelcol-cust
 
 ### Building Locally
 
-1. Ensure you have Go 1.23+ installed
+1. Ensure you have Go 1.25+ installed
 2. Generate the collector code:
    ```bash
-   go run go.opentelemetry.io/collector/cmd/builder@latest --config builder-config.yaml
+   make generate
    ```
 3. Build the binary:
    ```bash
@@ -52,23 +52,19 @@ Service configuration options are available in `/etc/otelcol-custom/otelcol-cust
    ```
 ### Dependency updates
 OpenTelemetry Collector tends to be on a fast release cycle, so here's the process.
-1) Make sure to grab the latest versions of the dependencies:
-```bash
-   go get \
-    go.opentelemetry.io/collector/cmd/builder@[latest] \
-    go.opentelemetry.io/collector/component@[latest] \
-    go.opentelemetry.io/collector/confmap@[latest] \
-    go.opentelemetry.io/collector/otelcol@[latest]
-
-  go mod tidy # This is used to remove any indirect deps that aren't needed anymore
-```
-2) Update the `builder-config.yaml` to the versions added above.
+1) Update `builder-config.yaml` to the latest component versions.
+   Keep component versions aligned with the collector version series used in `go.mod`.
    Small example:
-   ```go
+   ```yaml
    receivers:
       - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/journaldreceiver [latest version] // <- update the version
    ```
-3) Make sure everything works with `make build` and `./dist/otelcol --config config.yaml`
+2) Regenerate and build:
+```bash
+make generate
+make build
+```
+3) Make sure everything works with `./dist/otelcol --config config.yaml`
 
 ### Creating Debian Packages
 
