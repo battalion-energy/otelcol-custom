@@ -9,22 +9,22 @@ service:
     logs/other:
       receivers: [routing]
       processors: [filter/only_ssh_in_tailscaled, transform/journald, batch/logs]
-      exporters: [otlphttp/dash0/logs]
+      exporters: [otlp_http/dash0/logs]
 
     logs/batt-edge:
       receivers: [routing]
       processors: [transform/edge_remap, batch/logs]
-      exporters: [otlphttp/dash0/logs]
+      exporters: [otlp_http/dash0/logs]
 
     metrics/system:
       receivers: [hostmetrics]
       processors: [filter/cpu_mode, filter/process_cpu_mode, metricstransform/aggregate_cpu, attributes/add_site_name, batch/metrics]
-      exporters: [otlphttp/dash0/metrics, prometheus]
+      exporters: [otlp_http/dash0/metrics, prometheus]
 
     metrics/batt-edge:
       receivers: [prometheus]
       processors: [batch/metrics]
-      exporters: [otlphttp/dash0/metrics]
+      exporters: [otlp_http/dash0/metrics]
 
 receivers:
   journald:
@@ -181,14 +181,14 @@ processors:
         value: ${env:SITE_NAME}
 
 exporters:
-  otlphttp/dash0/logs:
+  otlp_http/dash0/logs:
     endpoint: https://ingress.us-west-2.aws.dash0.com/
     headers:
       Authorization: ${env:DASH0_API_KEY}
     compression: gzip
     encoding: json
 
-  otlphttp/dash0/metrics:
+  otlp_http/dash0/metrics:
     endpoint: https://ingress.us-west-2.aws.dash0.com/
     headers:
       Authorization: ${env:DASH0_API_KEY}
