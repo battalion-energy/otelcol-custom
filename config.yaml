@@ -18,7 +18,7 @@ service:
 
     metrics/system:
       receivers: [hostmetrics]
-      processors: [filter/cpu_mode, filter/process_cpu_mode, metricstransform/aggregate_cpu, attributes/add_site_name, batch/metrics]
+      processors: [filter/cpu_mode, filter/process_cpu_mode, attributes/add_site_name, batch/metrics]
       exporters: [otlp_http/dash0/metrics, prometheus]
 
     metrics/batt-edge:
@@ -163,16 +163,6 @@ processors:
           attributes["state"] == "user" or 
           attributes["state"] == "system"
         )
-
-  metricstransform/aggregate_cpu:
-    transforms:
-      - include: system.cpu.utilization
-        action: update
-        operations:
-          - action: aggregate_labels
-            label_set: ["state"]
-            aggregation_type: mean
-
 
   attributes/add_site_name:
     actions:
