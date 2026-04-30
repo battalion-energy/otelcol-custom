@@ -29,7 +29,7 @@ service:
 receivers:
   journald:
     directory: /var/log/journal
-    units: ["tailscaled", "batt-edge"]
+    units: ${env:JOURNALD_UNITS}
 
   hostmetrics:
     collection_interval: ${env:METRICS_SCRAPE_INTERVAL}
@@ -115,7 +115,16 @@ processors:
         - set(log.attributes["unit"], log.body["_SYSTEMD_UNIT"])
         - set(log.attributes["message"], log.body["MESSAGE"])
 
-        - keep_keys(log.attributes, ["unit", "message", "site_name"])
+        - set(log.attributes["source_hostname"],   log.body["SOURCE_HOSTNAME"])
+        - set(log.attributes["source_ip"],         log.body["SOURCE_IP"])
+        - set(log.attributes["source_tag"],        log.body["SOURCE_TAG"])
+        - set(log.attributes["source_class"],      log.body["SOURCE_CLASS"])
+        - set(log.attributes["ingest_node"],       log.body["INGEST_NODE"])
+        - set(log.attributes["syslog_identifier"], log.body["SYSLOG_IDENTIFIER"])
+
+        - keep_keys(log.attributes, ["unit", "message", "site_name",
+                                     "source_hostname", "source_ip", "source_tag",
+                                     "source_class", "ingest_node", "syslog_identifier"])
         - keep_keys(log.body, [])
 
   transform/edge_remap:
