@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.4.0] - 2026-04-30
+
+### Added
+- Parameterized the `journald` receiver's `units` list via the `JOURNALD_UNITS` env var (default in `otelcol-custom.conf`), letting sites add per-site units such as `network-syslog` without forking `config.yaml` ([#23](https://github.com/battalion-energy/otelcol-custom/pull/23))
+- Lifted `SOURCE_IP`, `SOURCE_HOSTNAME`, `SOURCE_TAG`, `SOURCE_CLASS`, `INGEST_NODE`, and `SYSLOG_IDENTIFIER` from the journal body to log attributes in `transform/journald`, enabling per-device identification of network-syslog events in dash0 ([#23](https://github.com/battalion-energy/otelcol-custom/pull/23))
+
+### Changed
+- Bumped OpenTelemetry Collector components from v0.145.0 to v0.151.0 and confmap providers to v1.57.0. Notable upstream fixes picked up: prometheusexporter unbounded memory growth from expired metric families, panic on empty histogram BucketCounts, resourcedetectionprocessor panic on shutdown with multi-pipeline + `refresh_interval`, journaldreceiver no longer emits historical entries on `start_at: end` ([#21](https://github.com/battalion-energy/otelcol-custom/pull/21))
+- Bumped GitHub Actions to current majors: `actions/checkout` v6, `actions/upload-artifact` v7, `actions/download-artifact` v8, `softprops/action-gh-release` v3. Removes Node 20 deprecation warnings ([#22](https://github.com/battalion-energy/otelcol-custom/pull/22))
+
+### Fixed
+- Removed `aggregate_cpu` from the hostmetrics CPU scraper config (closes [#18](https://github.com/battalion-energy/otelcol-custom/issues/18)) and updated the `otlp-http` exporter alias ([#19](https://github.com/battalion-energy/otelcol-custom/pull/19))
+
+### Upgrade notes
+- Sites upgrading from v1.3.x must ensure `JOURNALD_UNITS` is set in `/etc/otelcol-custom/otelcol-custom.conf` before the new `config.yaml` is in place. The dpkg upgrade installs the new `.conf` with a sensible default (`["tailscaled", "batt-edge"]`); manual installs must add the variable themselves.
+
 ## [v1.3.0] - 2026-2-10
 
 ### Changed
