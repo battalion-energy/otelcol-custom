@@ -206,6 +206,10 @@ METRICS_BATCH_INTERVAL="15m"
 # Prometheus scrape/export
 PROMETHEUS_EXPORTER_ENDPOINT="0.0.0.0:8889"
 PROMETHEUS_TARGETS="['localhost:9090']"
+
+# Journald receiver units. Override per-site as needed (e.g. add
+# "network-syslog" on sites with switch/firewall log shipping).
+JOURNALD_UNITS='["tailscaled", "batt-edge"]'
 ```
 
 > **Note:** `otelcol-custom.conf` is consumed by systemd as an `EnvironmentFile` and may also be sourced by scripts. Keep it to simple `KEY="value"` lines and avoid shell syntax that relies on complex evaluation.
