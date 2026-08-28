@@ -9,12 +9,12 @@ service:
     logs/other:
       receivers: [routing]
       processors: [filter/only_ssh_in_tailscaled, transform/journald, batch/logs]
-      exporters: [otlp_http/dash0/logs]
+      exporters: [otlp_http/dash0/logs, awss3/logs]
 
     logs/batt-edge:
       receivers: [routing]
       processors: [transform/edge_remap, batch/logs]
-      exporters: [otlp_http/dash0/logs]
+      exporters: [otlp_http/dash0/logs, awss3/logs]
 
     metrics/system:
       receivers: [hostmetrics]
@@ -193,6 +193,25 @@ exporters:
       Authorization: ${env:DASH0_API_KEY}
     compression: gzip
     encoding: json
+
+  awss3/logs:
+    s3uploader:
+      region: ${env:S3_REGION}
+      s3_bucket: ${env:S3_BUCKET}
+      s3_prefix: ${env:SITE_NAME}/logs
+      s3_partition_format: "year=%Y/month=%m/day=%d/hour=%H"
+      compression: gzip
+      storage_class: STANDARD
+    marshaler: otlp_json
+    sending_queue:
+      # One object is written per export call and S3 objects can't be appended
+      # to, so batch again here. batch/logs upstream flushes every 200ms, which
+      # would be ~5 objects/sec. min_size is protobuf bytes, not bytes on disk;
+      # tune once we've seen real object sizes.
+      batch:
+        sizer: bytes
+        min_size: 1048576
+        flush_timeout: 5m
 
   prometheus:
     endpoint: ${env:PROMETHEUS_EXPORTER_ENDPOINT}
