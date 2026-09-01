@@ -206,10 +206,6 @@ exporters:
       storage_class: STANDARD
     marshaler: otlp_json
     sending_queue:
-      # One object is written per export call and S3 objects can't be appended
-      # to, so batch again here. batch/logs upstream flushes every 200ms, which
-      # would be ~5 objects/sec. min_size is protobuf bytes, not bytes on disk;
-      # tune once we've seen real object sizes.
       batch:
         sizer: bytes
         min_size: 1048576
