@@ -198,8 +198,10 @@ exporters:
     s3uploader:
       region: ${env:S3_REGION}
       s3_bucket: ${env:S3_BUCKET}
+      s3_base_prefix: otelcol
       s3_prefix: ${env:SITE_NAME}/logs
       s3_partition_format: "year=%Y/month=%m/day=%d/hour=%H"
+      s3_partition_timezone: UTC
       compression: gzip
       storage_class: STANDARD
     marshaler: otlp_json
