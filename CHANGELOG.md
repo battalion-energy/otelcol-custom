@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Added the `awss3` exporter to `builder-config.yaml` for a one-off S3 log export whose collector config is version controlled in a separate repo. Compiled in but not on any pipeline here, so behavior is unchanged
+
+### Changed
+- Bumped OpenTelemetry Collector components from v0.151.0 to v0.159.0 and confmap providers to v1.65.0
+- Pinned the collector builder to a single `BUILDER_VERSION` variable in the Makefile, replacing `cmd/builder@latest`
+
+### Fixed
+- Fixed builds breaking on component bumps. The builder pins core collector modules to its own version, so `@latest` resolved core to v0.159.0 against v0.151.0 components and failed to compile
+
 ## [v1.4.0] - 2026-04-30
 
 ### Added
